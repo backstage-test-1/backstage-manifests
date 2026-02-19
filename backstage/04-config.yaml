@@ -6,16 +6,12 @@ metadata:
 data:
   app-config.production.yaml: |
     app:
-      title: Backstage App
-      # [중요] 접속하는 브라우저 주소와 일치해야 함
       baseUrl: http://localhost:7007
-
+    
     backend:
-      # 백엔드 접속 주소
       baseUrl: http://localhost:7007
-      listen:
-        port: 7007
-      
+      listen: ':7007'
+    
       database:
         client: pg
         connection:
@@ -23,16 +19,21 @@ data:
           port: ${POSTGRES_PORT}
           user: ${POSTGRES_USER}
           password: ${POSTGRES_PASSWORD}
-          
-      # [핵심] localhost 접속을 허용하는 CORS 설정
-      cors:
-        origin: http://localhost:7007
-        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
-        credentials: true
-
-    # 게스트 접근 허용 (테스트용)
+    
     auth:
-      environment: development
       providers:
         guest:
           dangerouslyAllowOutsideDevelopment: true
+    
+    catalog:
+      locations:
+        - type: file
+          target: ./examples/entities.yaml
+        - type: file
+          target: ./examples/template/template.yaml
+          rules:
+            - allow: [Template]
+        - type: file
+          target: ./examples/org.yaml
+          rules:
+            - allow: [User, Group]

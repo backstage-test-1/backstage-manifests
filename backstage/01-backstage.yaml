@@ -30,6 +30,14 @@ spec:
                 name: postgres-secrets
             - secretRef:
                 name: backstage-secrets
+          volumeMounts:
+            - name: app-config
+              mountPath: /app/app-config.production.yaml
+              subPath: app-config.production.yaml
+      volumes:
+        - name: app-config
+          configMap:
+            name: backstage-config
 #          readinessProbe:
 #            httpGet:
 #              port: 7007
