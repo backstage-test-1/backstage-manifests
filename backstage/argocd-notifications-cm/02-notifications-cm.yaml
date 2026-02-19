@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  # 서비스 설정 - Slack
+  service.slack: |
+    token: $slack-token
+
+  # 발송 조건
+  trigger.on-sync-succeeded: |
+    - description: Application syncing has succeeded
+      send:
+      - app-sync-succeeded
+      when: app.status.operationState.phase in ['Succeeded']
+  
+  ##############
+  # 메시지 템플릿
+  ##############
+
+  # Sync 성공 및 메시지
+  template.app-sync-succeeded: |
+    message: |
+      ✅ *ArgoCD Sync Success*
+      • App: `{{.app.metadata.name}}`
+    slack:
+      attachments: |
+        [{
+          "title": "{{.app.metadata.name}} 동기화 성공",
+          "color": "#18be52",
+          "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "Health Status",
+              "value": "{{.app.status.health.status}}",
+              "short": true
+            }
+          ]
+        }]
+  
+  # Sync 실패
+  trigger.on-sync-failed: |
+    - description: Application syncing has failed
+      send:
+      - app-sync-failed
+      when: app.status.operationState.phase in ['Error', 'Failed']
+
+  # 애플리케이션 상태 이상 (CrashLoopBackOff 등)
+  trigger.on-health-degraded: |
+    - description: Application has degraded
+      send:
+      - app-health-degraded
+      when: app.status.health.status == 'Degraded'
+
+  #  Sync 실패 메시지
+  template.app-sync-failed: |
+    message: |
+      🚨 *ArgoCD Sync Failed*
+    slack:
+      attachments: |
+        [{
+          "title": "❌ {{.app.metadata.name}} 동기화 실패",
+          "color": "#E01E5A",
+          "fields": [
+            { "title": "Error Message", "value": "{{.app.status.operationState.message}}", "short": false },
+            { "title": "Repository", "value": "{{.app.spec.source.repoURL}}", "short": true }
+          ]
+        }]
+
+  # 상태 이상 메시지
+  template.app-health-degraded: |
+    message: |
+      ⚠️ *ArgoCD Health Degraded*
+    slack:
+      attachments: |
+        [{
+          "title": "⚠️ {{.app.metadata.name}} 상태 이상 (Degraded)",
+          "color": "#FFCC00",
+          "fields": [
+            { "title": "Health Status", "value": "{{.app.status.health.status}}", "short": true },
+            { "title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true }
+          ]
+        }]
+
+  ##################
+  # DevLake 
+  ##################
+      
+  # DevLake Webhook 서비스 등록
+  service.webhook.devlake: |
+    url: "http://devlake-ui.devlake.svc.cluster.local:4000/api/rest/plugins/webhook/connections/1/deployments"
+    headers:
+      - name: Authorization
+        value: "Bearer $devlake-api-key"
+      - name: Content-Type
+        value: "application/json"
+
+  # DevLake 페이로드 템플릿
+  template.devlake-deployment: |
+    webhook:
+      devlake:
+        method: POST
+        body: |
+          {
+            "id": "{{.app.metadata.name}}-{{.app.status.sync.revision}}",
+            "startedDate": "{{.app.status.operationState.startedAt}}",
+            "finishedDate": "{{.app.status.operationState.finishedAt}}",
+            "result": "{{if eq .app.status.operationState.phase \"Succeeded\"}}SUCCESS{{else}}FAILURE{{end}}",
+            "deploymentCommits": [
+              {
+                "repoUrl": "{{.app.spec.source.repoURL}}",
+                "refName": "{{.app.spec.source.targetRevision}}",
+                "startedDate": "{{.app.status.operationState.startedAt}}",
+                "finishedDate": "{{.app.status.operationState.finishedAt}}",
+                "commitSha": "{{.app.status.sync.revision}}"
+              }
+            ]
+          }
+
+  # 트리거 설정 (Sync 완료 시 전송)
+  trigger.on-sync-completed-devlake: |
+    - description: Send deployment data to DevLake
+      send:
+      - devlake-deployment
+      when: app.status.operationState.phase in ['Succeeded', 'Failed', 'Error']
