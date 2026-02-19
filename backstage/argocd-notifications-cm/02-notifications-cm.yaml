@@ -110,7 +110,7 @@ data:
             "id": "{{.app.metadata.name}}-{{.app.status.sync.revision}}",
             "startedDate": "{{.app.status.operationState.startedAt}}",
             "finishedDate": "{{.app.status.operationState.finishedAt}}",
-            "result": "{{if eq .app.status.operationState.phase \"Succeeded\"}}SUCCESS{{else}}FAILURE{{end}}",
+            "result": "{{if eq .app.status.operationState.phase "Succeeded"}}SUCCESS{{else}}FAILURE{{end}}",
             "deploymentCommits": [
               {
                 "repoUrl": "{{.app.spec.source.repoURL}}",
