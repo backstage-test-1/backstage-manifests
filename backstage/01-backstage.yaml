@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backstage
-          image: ghcr.io/backstage-test-1/backstage:c1216e2dfc531d6a4de10458cc9143eb3d6e0794
+          image: ghcr.io/backstage-test-1/backstage:c11ab23bd8909d546ca2a7f2a6e3aa988cc1dadd
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
