@@ -25,10 +25,6 @@ spec:
               value: postgres
             - name: POSTGRES_PORT
               value: "5432"
-            - name: APP_CONFIG_app_baseUrl
-              value: "http://192.168.50.12:30007"
-            - name: APP_CONFIG_backend_baseUrl
-              value: "http://192.168.50.12:30007"
           envFrom:
             - secretRef:
                 name: postgres-secrets
