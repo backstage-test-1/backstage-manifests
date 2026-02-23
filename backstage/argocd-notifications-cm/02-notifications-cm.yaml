@@ -111,13 +111,15 @@ data:
             "startedDate": "{{.app.status.operationState.startedAt}}",
             "finishedDate": "{{.app.status.operationState.finishedAt}}",
             "result": "{{if eq .app.status.operationState.phase "Succeeded"}}SUCCESS{{else}}FAILURE{{end}}",
+            "environment": "PRODUCTION",
             "deploymentCommits": [
               {
-                "repoUrl": "{{.app.spec.source.repoURL}}",
-                "refName": "{{.app.spec.source.targetRevision}}",
+                "repoUrl": "https://github.com/backstage-test-1/backstage-app",
+                "refName": "main",
                 "startedDate": "{{.app.status.operationState.startedAt}}",
                 "finishedDate": "{{.app.status.operationState.finishedAt}}",
-                "commitSha": "{{.app.status.sync.revision}}"
+                "commitSha": "{{.app.status.sync.revision}}",
+                "environment": "PRODUCTION"
               }
             ]
           }
