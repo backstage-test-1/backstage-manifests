@@ -1,0 +1,14 @@
+# 이 파일은 Kubernetes Manifest가 아닙니다. kubectl apply 대상이 아니며,
+# Backstage 소프트웨어 카탈로그에 이 리포지토리를 Resource로 등록하기 위한 메타데이터 파일입니다.
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: backstage-manifests
+  namespace: backstage-test-1
+  description: Kubernetes GitOps manifests for Backstage deployed via ArgoCD
+  annotations:
+    github.com/project-slug: backstage-test-1/backstage-manifests
+spec:
+  type: kubernetes-manifests
+  owner: group:backstage-test-1/guests
+  lifecycle: experimental
