@@ -10,5 +10,5 @@ metadata:
     github.com/project-slug: backstage-test-1/backstage-manifests
 spec:
   type: kubernetes-manifests
-  owner: group:backstage-test-1/guests
+  owner: group:backstage-test-1/devops
   lifecycle: experimental
