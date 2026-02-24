@@ -21,6 +21,8 @@ spec:
             - name: http
               containerPort: 7007
           env:
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
             - name: ARGOCD_URL
               value: "http://argocd-server.argocd.svc.cluster.local"
             - name: POSTGRES_HOST
