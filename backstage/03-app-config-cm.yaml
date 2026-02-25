@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-app-config
+  namespace: backstage
+data:
+  app-config.yaml: |
+    app:
+      title: Scaffolded Backstage App
+      baseUrl: http://192.168.50.12:30007
+
+    organization:
+      name: My Company
+
+    backend:
+      baseUrl: http://192.168.50.12:30007
+      listen:
+        port: 7007
+      csp:
+        connect-src: ["'self'", 'http:', 'https:']
+        upgrade-insecure-requests: false
+      cors:
+        origin: http://192.168.50.12:30007
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+      database:
+        client: pg
+        connection:
+          host: ${POSTGRES_HOST}
+          port: ${POSTGRES_PORT}
+          user: ${POSTGRES_USER}
+          password: ${POSTGRES_PASSWORD}
+
+    integrations:
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
+
+    proxy:
+      ### Example for how to add a proxy endpoint for the frontend.
+      # endpoints:
+      #   '/test':
+      #     target: 'https://example.com'
+      #     changeOrigin: true
+
+    techdocs:
+      builder: 'local'
+      generator:
+        runIn: 'local'
+      publisher:
+        type: 'local'
+
+    auth:
+      environment: development
+      providers:
+        guest:
+          dangerouslyAllowOutsideDevelopment: true
+        github:
+          development:
+            clientId: ${AUTH_GITHUB_CLIENT_ID}
+            clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+            signIn:
+              resolvers:
+                - resolver: usernameMatchingUserEntityName
+          production:
+            clientId: ${AUTH_GITHUB_CLIENT_ID}
+            clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+            signIn:
+              resolvers:
+                - resolver: usernameMatchingUserEntityName
+
+    scaffolder:
+      # see https://backstage.io/docs/features/software-templates/configuration for software template options
+
+    catalog:
+      import:
+        entityFilename: catalog-info.yaml
+        pullRequestBranchName: backstage-integration
+      rules:
+        - allow: [Component, System, API, Resource, Location]
+      locations:
+        # Example data referenced via GitHub URL (not baked into image)
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/examples/entities.yaml
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/examples/template/template.yaml
+          rules:
+            - allow: [Template]
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/examples/org.yaml
+          rules:
+            - allow: [User, Group]
+
+        # backstage-app repository catalog
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/catalog-info.yaml
+
+        # backstage-manifests GitOps repository (Resource kind)
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-manifests/blob/main/catalog-info.yaml
+
+    kubernetes:
+      # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
+
+    permission:
+      enabled: true
+
+    argocd:
+      appLocatorMethods:
+        - type: 'config'
+          instances:
+            - name: argoInstance1
+              url: ${ARGOCD_URL}
+              token: ${ARGOCD_AUTH_TOKEN}
+              skipTLSVerify: true
