@@ -30,9 +30,11 @@ spec:
               serve_from_subpath: "false"
               root_url: "http://192.168.50.12:30009"
 
-        # 암호화 키: 별도 K8s Secret 참조 (devlake 네임스페이스에 미리 생성 필요)
-        # kubectl create secret generic devlake-encryption-secret -n devlake \
-        #   --from-literal=ENCRYPTION_SECRET=$(openssl rand -base64 2000 | tr -dc 'A-Z' | fold -w 128 | head -n 1)
+        # 암호화 키: K8s Secret으로 분리 (값을 git에 커밋하지 않기 위해)
+        # autoCreateSecret: false → validate.yaml 검증 우회
+        # 배포 전 아래 명령어로 Secret을 미리 생성해야 함:
+        #   kubectl create secret generic devlake-encryption-secret -n devlake \
+        #     --from-literal=ENCRYPTION_SECRET=$(openssl rand -base64 2000 | tr -dc 'A-Z' | fold -w 128 | head -n 1)
         lake:
           encryptionSecret:
             secretName: devlake-encryption-secret
