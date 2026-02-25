@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devlake
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://apache.github.io/incubator-devlake-helm-chart
+    chart: devlake
+    targetRevision: "1.0.3-beta9"
+    helm:
+      values: |
+        mysql:
+          storage:
+            class: ""
+            size: 5Gi
+
+        service:
+          type: NodePort
+          uiPort: 30008
+
+        grafana:
+          service:
+            type: NodePort
+            nodePort: 30009
+          # NodePort 직접 접근 시 서브패스 라우팅 비활성화
+          grafana.ini:
+            server:
+              serve_from_subpath: "false"
+              root_url: "http://192.168.50.12:30009"
+
+        lake:
+          encryptionSecret:
+            autoCreateSecret: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: devlake
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
