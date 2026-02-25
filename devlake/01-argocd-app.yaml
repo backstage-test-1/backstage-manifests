@@ -32,6 +32,13 @@ spec:
             server:
               serve_from_subpath: "false"
               root_url: "http://192.168.50.12:30009"
+          # local-path PV 권한 문제 해결: initChownData 비활성화, root로 실행
+          initChownData:
+            enabled: false
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            fsGroup: 0
 
         # 암호화 키: K8s Secret으로 분리 (값을 git에 커밋하지 않기 위해)
         # autoCreateSecret: false → validate.yaml 검증 우회
