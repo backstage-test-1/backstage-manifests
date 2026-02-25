@@ -15,6 +15,9 @@ spec:
           storage:
             class: ""
             size: 5Gi
+          # NO_ZERO_DATE, NO_ZERO_IN_DATE 제거 → token_expires_at 0000-00-00 허용
+          extraArgs:
+            - --sql-mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 
         service:
           type: NodePort
