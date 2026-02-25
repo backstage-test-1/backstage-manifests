@@ -30,9 +30,13 @@ spec:
               serve_from_subpath: "false"
               root_url: "http://192.168.50.12:30009"
 
+        # 암호화 키: 별도 K8s Secret 참조 (devlake 네임스페이스에 미리 생성 필요)
+        # kubectl create secret generic devlake-encryption-secret -n devlake \
+        #   --from-literal=ENCRYPTION_SECRET=$(openssl rand -base64 2000 | tr -dc 'A-Z' | fold -w 128 | head -n 1)
         lake:
           encryptionSecret:
-            autoCreateSecret: true
+            secretName: devlake-encryption-secret
+            autoCreateSecret: false
 
   destination:
     server: https://kubernetes.default.svc
