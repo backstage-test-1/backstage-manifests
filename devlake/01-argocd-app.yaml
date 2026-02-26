@@ -13,7 +13,7 @@ spec:
       values: |
         mysql:
           storage:
-            class: ""
+            class: "nfs-client"
             size: 5Gi
           # NO_ZERO_DATE, NO_ZERO_IN_DATE 제거 → token_expires_at 0000-00-00 허용
           extraArgs:
