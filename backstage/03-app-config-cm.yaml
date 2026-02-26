@@ -88,6 +88,12 @@ data:
           rules:
             - allow: [Template]
 
+        # Node.js API template
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/templates/node-api/template.yaml
+          rules:
+            - allow: [Template]
+
         - type: url
           target: https://github.com/backstage-test-1/backstage-app/blob/main/examples/org.yaml
           rules:
