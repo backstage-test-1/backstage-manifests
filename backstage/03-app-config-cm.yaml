@@ -51,23 +51,16 @@ data:
         type: 'local'
 
     auth:
-      environment: development
+      environment: default
       providers:
         guest:
           dangerouslyAllowOutsideDevelopment: true
         github:
-          development:
-            clientId: ${AUTH_GITHUB_CLIENT_ID}
-            clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
-            signIn:
-              resolvers:
-                - resolver: usernameMatchingUserEntityName
-          production:
-            clientId: ${AUTH_GITHUB_CLIENT_ID}
-            clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
-            signIn:
-              resolvers:
-                - resolver: usernameMatchingUserEntityName
+          clientId: ${AUTH_GITHUB_CLIENT_ID}
+          clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+          signIn:
+            resolvers:
+              - resolver: usernameMatchingUserEntityName
 
     scaffolder:
       # see https://backstage.io/docs/features/software-templates/configuration for software template options
