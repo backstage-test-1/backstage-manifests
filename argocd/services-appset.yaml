@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: services-appset
+  namespace: argocd
+spec:
+  # 기존 수동 생성 Application이 있어도 ApplicationSet이 인수(adopt)하도록 허용
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+
+  generators:
+    - scmProvider:
+        github:
+          organization: backstage-test-1
+          tokenRef:
+            secretName: argocd-github-token
+            key: token
+          # fork된 레포 제외
+          allBranches: false
+        # k8s/ 폴더가 있는 레포만 대상으로 함
+        # (backstage-app, backstage-manifests 등 k8s/ 없는 레포는 자동 제외)
+        filters:
+          - pathsExist: ["k8s"]
+
+  # ApplicationSet이 삭제될 때 생성한 Application도 함께 삭제
+  syncPolicy:
+    preserveResourcesOnDeletion: false
+
+  template:
+    metadata:
+      name: "{{ .repository }}"
+      # ApplicationSet이 관리하는 Application임을 표시
+      labels:
+        managed-by: services-appset
+    spec:
+      project: default
+
+      source:
+        repoURL: "https://github.com/{{ .organization }}/{{ .repository }}"
+        targetRevision: main
+        path: k8s
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: testservice
+
+      syncPolicy:
+        automated:
+          prune: true      # k8s/에서 삭제된 리소스는 클러스터에서도 제거
+          selfHeal: true   # 수동 kubectl 변경 시 ArgoCD가 원복
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true   # 매니페스트 충돌 방지
