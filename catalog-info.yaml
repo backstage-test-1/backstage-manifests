@@ -12,3 +12,4 @@ spec:
   type: infrastructure
   owner: group:default/devops
   lifecycle: experimental
+  system: backstage-test
