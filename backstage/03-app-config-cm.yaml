@@ -95,6 +95,18 @@ data:
           rules:
             - allow: [Template]
 
+        # System template
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/templates/system/template.yaml
+          rules:
+            - allow: [Template]
+
+        # Logical systems location
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/catalog/systems/
+          rules:
+            - allow: [System]
+
         - type: url
           target: https://github.com/backstage-test-1/backstage-app/blob/main/examples/org.yaml
           rules:
