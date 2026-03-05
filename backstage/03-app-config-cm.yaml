@@ -101,6 +101,12 @@ data:
           rules:
             - allow: [Template]
 
+        # Vue.js Frontend template
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/templates/vue-frontend/template.yaml
+          rules:
+            - allow: [Template]
+
         # Logical systems location
         - type: url
           target: https://github.com/backstage-test-1/backstage-app/blob/main/catalog/systems/
