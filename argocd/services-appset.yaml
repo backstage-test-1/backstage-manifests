@@ -39,6 +39,10 @@ spec:
         repoURL: "https://github.com/{{ .organization }}/{{ .repository }}"
         targetRevision: main
         path: k8s
+        directory:
+          # argocd-app.yaml을 배포 대상에서 제외: services-appset이 Application CRD를 자동 생성하므로
+          # 스켈레톤의 argocd-app.yaml이 동일 이름의 Application을 덮어써 OutOfSync 루프가 발생함
+          exclude: 'argocd-app.yaml'
 
       destination:
         server: https://kubernetes.default.svc
@@ -51,3 +55,24 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true   # 매니페스트 충돌 방지
+          - RespectIgnoreDifferences=true  # ignoreDifferences 항목은 sync 대상에서도 제외
+
+      # ServerSideApply 사용 시 Kubernetes apiserver가 manifest에 없는 필드를 자동 주입하여
+      # sync 직후에도 OutOfSync 루프가 발생하는 문제를 방지
+      ignoreDifferences:
+        - group: apps
+          kind: Deployment
+          jsonPointers:
+            - /spec/template/spec/containers/0/imagePullPolicy
+            - /spec/template/spec/containers/0/terminationMessagePath
+            - /spec/template/spec/containers/0/terminationMessagePolicy
+            - /spec/template/spec/dnsPolicy
+            - /spec/template/spec/restartPolicy
+            - /spec/template/spec/schedulerName
+        - group: ""
+          kind: Service
+          jsonPointers:
+            - /spec/clusterIP
+            - /spec/clusterIPs
+            - /spec/ipFamilies
+            - /spec/ipFamilyPolicy
