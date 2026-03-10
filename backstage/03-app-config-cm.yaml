@@ -6,6 +6,7 @@ metadata:
 data:
   app-config.yaml: |
     app:
+      # Keep the public URL on the frontend NodePort. The frontend deployment proxies /api/* to the internal backend service.
       title: Scaffolded Backstage App
       baseUrl: http://192.168.50.12:30007
 
@@ -13,6 +14,7 @@ data:
       name: My Company
 
     backend:
+      # The backend still advertises the same public URL so auth callbacks and absolute links continue to use a single origin.
       baseUrl: http://192.168.50.12:30007
       listen:
         port: 7007
@@ -20,6 +22,7 @@ data:
         connect-src: ["'self'", 'http:', 'https:']
         upgrade-insecure-requests: false
       cors:
+        # Browser traffic still originates from the public frontend NodePort.
         origin: http://192.168.50.12:30007
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true

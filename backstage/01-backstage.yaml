@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backstage
+  name: backstage-backend
   namespace: backstage
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backstage
+      app: backstage-backend
   template:
     metadata:
       labels:
-        app: backstage
+        app: backstage-backend
     spec:
       containers:
-        - name: backstage
-          image: ghcr.io/backstage-test-1/backstage:13f2d805bde1d3201329ab14acc72153cb08dadb
+        - name: backstage-backend
+          image: ghcr.io/backstage-test-1/backstage-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
