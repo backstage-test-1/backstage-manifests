@@ -1,0 +1,9 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ingress-public
+  namespace: metallb-system
+spec:
+  addresses:
+    # Single reserved ingress IP selected for this environment.
+    - 192.168.50.100/32

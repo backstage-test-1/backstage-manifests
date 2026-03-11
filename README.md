@@ -23,6 +23,13 @@ backstage/
 
 argocd/
 └── backstage-application.yaml  # ArgoCD Application CR
+
+metallb/
+├── 01-ipaddresspool.yaml       # MetalLB IP pool for ingress LB
+└── 02-l2advertisement.yaml     # L2 advertisement for the pool
+
+ingress-nginx/
+└── 01-ingress-nginx-controller-service.yaml  # ingress-nginx Service -> LoadBalancer
 ```
 
 ## Related Repositories
@@ -52,6 +59,24 @@ kubectl apply -f backstage/00-backstage-secrets.yaml
 # PostgreSQL secrets  
 kubectl apply -f backstage/database/01-postgres-secret.yaml
 ```
+
+## MetalLB and ingress-nginx LoadBalancer
+
+Install MetalLB with the upstream native manifest:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+```
+
+Then apply the repository-managed MetalLB and ingress-nginx configuration:
+
+```bash
+kubectl apply -f k8s/metallb/01-ipaddresspool.yaml
+kubectl apply -f k8s/metallb/02-l2advertisement.yaml
+kubectl apply -f k8s/ingress-nginx/01-ingress-nginx-controller-service.yaml
+```
+
+Before applying the IPAddressPool, replace the example address range with IPs that are actually reserved and free on the node subnet.
 
 ## ArgoCD Setup
 
