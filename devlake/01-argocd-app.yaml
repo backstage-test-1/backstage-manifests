@@ -20,18 +20,23 @@ spec:
             - --sql-mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 
         service:
-          type: NodePort
-          uiPort: 30008
+          type: ClusterIP
+
+        ingress:
+          enabled: true
+          enableHttps: false
+          className: nginx
+          # Replace the placeholder host before syncing to GitOps.
+          hostname: devlake.internal.example.com
 
         grafana:
           service:
-            type: NodePort
-            nodePort: 30009
-          # NodePort 직접 접근 시 서브패스 라우팅 비활성화
+            type: ClusterIP
+          # During the HTTP phase, Grafana is exposed through the same host under /grafana.
           grafana.ini:
             server:
-              serve_from_subpath: "false"
-              root_url: "http://192.168.50.12:30009"
+              serve_from_subpath: "true"
+              root_url: "http://devlake.internal.example.com/grafana"
           # DORA 대시보드는 DevLake MySQL에 저장되므로 Grafana 자체 PV 불필요
           # non-root 정책 + local-path PV 권한 문제를 persistence 비활성화로 우회
           persistence:

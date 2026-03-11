@@ -4,11 +4,10 @@ metadata:
   name: backstage
   namespace: backstage
 spec:
-  type: NodePort 
+  type: ClusterIP
   selector:
     app: backstage-frontend
   ports:
     - name: http
       port: 80
-      targetPort: http 
-      nodePort: 30007
+      targetPort: http
