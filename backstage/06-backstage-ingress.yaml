@@ -7,7 +7,7 @@ spec:
   ingressClassName: nginx
   rules:
     # Replace the placeholder host before syncing to GitOps.
-    - host: backstage.internal.example.com
+    - host: backstage.sth.com
       http:
         paths:
           - path: /

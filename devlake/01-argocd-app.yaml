@@ -27,7 +27,7 @@ spec:
           enableHttps: false
           className: nginx
           # Replace the placeholder host before syncing to GitOps.
-          hostname: devlake.internal.example.com
+          hostname: devlake.sth.com
 
         grafana:
           service:
@@ -36,7 +36,7 @@ spec:
           grafana.ini:
             server:
               serve_from_subpath: "true"
-              root_url: "http://devlake.internal.example.com/grafana"
+              root_url: "http://devlake.sth.com/grafana"
           # DORA 대시보드는 DevLake MySQL에 저장되므로 Grafana 자체 PV 불필요
           # non-root 정책 + local-path PV 권한 문제를 persistence 비활성화로 우회
           persistence:
