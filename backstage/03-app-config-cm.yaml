@@ -8,14 +8,14 @@ data:
     app:
       # Replace the placeholder host before syncing to GitOps. The frontend still proxies /api/* to the internal backend service.
       title: Scaffolded Backstage App
-      baseUrl: http://backstage.internal.example.com
+      baseUrl: http://backstage.sth.com
 
     organization:
       name: My Company
 
     backend:
       # Keep the same public origin as the frontend so auth callbacks and absolute links continue to use a single origin.
-      baseUrl: http://backstage.internal.example.com
+      baseUrl: http://backstage.sth.com
       listen:
         port: 7007
       csp:
@@ -23,7 +23,7 @@ data:
         upgrade-insecure-requests: false
       cors:
         # Browser traffic originates from the public Backstage ingress host.
-        origin: http://backstage.internal.example.com
+        origin: http://backstage.sth.com
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true
       database:
