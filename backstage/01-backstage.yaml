@@ -17,6 +17,13 @@ spec:
         - name: backstage-backend
           image: ghcr.io/backstage-test-1/backstage-backend:955b132f3b847972d73ac775d12bf09b3b3378f8
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
           ports:
             - name: http
               containerPort: 7007

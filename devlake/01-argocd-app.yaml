@@ -11,7 +11,33 @@ spec:
     targetRevision: "1.0.3-beta9"
     helm:
       values: |
+        lake:
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "512Mi"
+          encryptionSecret:
+            secretName: devlake-encryption-secret
+            autoCreateSecret: false
+        ui:
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
         mysql:
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
           storage:
             class: "nfs-client"
             size: 5Gi
@@ -49,10 +75,6 @@ spec:
         # 배포 전 아래 명령어로 Secret을 미리 생성해야 함:
         #   kubectl create secret generic devlake-encryption-secret -n devlake \
         #     --from-literal=ENCRYPTION_SECRET=$(openssl rand -base64 2000 | tr -dc 'A-Z' | fold -w 128 | head -n 1)
-        lake:
-          encryptionSecret:
-            secretName: devlake-encryption-secret
-            autoCreateSecret: false
 
   destination:
     server: https://kubernetes.default.svc
