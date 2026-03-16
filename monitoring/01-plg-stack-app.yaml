@@ -45,6 +45,14 @@ spec:
                 gnetId: 315
                 revision: 3
                 datasource: Prometheus
+              kubernetes-pods-by-namespace:
+                gnetId: 15757
+                revision: 37
+                datasource: Prometheus
+              kubernetes-pod-metrics:
+                gnetId: 6417
+                revision: 1
+                datasource: Prometheus
               loki-logs:
                 gnetId: 13639
                 revision: 2
