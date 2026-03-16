@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: loki-stack
+    targetRevision: "2.10.3"
+    helm:
+      values: |
+        loki:
+          persistence:
+            enabled: true
+            storageClassName: "nfs-client"
+            size: 10Gi
+        grafana:
+          enabled: true
+          persistence:
+            type: pvc
+            enabled: true
+            storageClassName: "nfs-client"
+            size: 5Gi
+          dashboardProviders:
+            dashboardproviders.yaml:
+              apiVersion: 1
+              providers:
+                - name: 'default'
+                  orgId: 1
+                  folder: ''
+                  type: file
+                  disableDeletion: false
+                  editable: true
+                  options:
+                    path: /var/lib/grafana/dashboards/default
+          dashboards:
+            default:
+              node-exporter:
+                gnetId: 1860
+                revision: 37
+                datasource: Prometheus
+              kubernetes-cluster:
+                gnetId: 315
+                revision: 3
+                datasource: Prometheus
+              loki-logs:
+                gnetId: 13639
+                revision: 2
+                datasource: Loki
+        prometheus:
+          enabled: true
+          server:
+            persistentVolume:
+              enabled: true
+              storageClass: "nfs-client"
+              size: 10Gi
+          alertmanager:
+            persistence:
+              storageClass: "nfs-client"
+              size: 2Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
