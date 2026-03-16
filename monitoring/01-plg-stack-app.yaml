@@ -18,6 +18,8 @@ spec:
             size: 10Gi
         grafana:
           enabled: true
+          admin:
+            existingSecret: "grafana-admin-credentials"
           persistence:
             type: pvc
             enabled: true
@@ -41,17 +43,13 @@ spec:
                 gnetId: 1860
                 revision: 37
                 datasource: Prometheus
-              kubernetes-cluster:
-                gnetId: 315
-                revision: 3
+              kubernetes-workload-deployment:
+                gnetId: 15758
+                revision: 34
                 datasource: Prometheus
               kubernetes-pods-by-namespace:
                 gnetId: 15757
                 revision: 37
-                datasource: Prometheus
-              kubernetes-pod-metrics:
-                gnetId: 6417
-                revision: 1
                 datasource: Prometheus
               loki-logs:
                 gnetId: 13639
