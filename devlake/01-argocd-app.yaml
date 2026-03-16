@@ -19,6 +19,18 @@ spec:
             limits:
               cpu: "300m"
               memory: "512Mi"
+          # DevLake startup can take long while loading plugins.
+          # Relax probes to avoid premature restarts during boot.
+          readinessProbe:
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 12
+            timeoutSeconds: 5
+          livenessProbe:
+            initialDelaySeconds: 180
+            periodSeconds: 10
+            failureThreshold: 6
+            timeoutSeconds: 5
           encryptionSecret:
             secretName: devlake-encryption-secret
             autoCreateSecret: false
