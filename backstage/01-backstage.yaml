@@ -17,7 +17,7 @@ spec:
       serviceAccountName: backstage-backend-sa
       containers:
         - name: backstage-backend
-          image: ghcr.io/backstage-test-1/backstage-backend:c1b568707b04fdb7a5a987e175ef98a6b031cf71
+          image: ghcr.io/backstage-test-1/backstage-backend:c3590e957273aa6a3fe49a2aed24795cce162d85
           imagePullPolicy: IfNotPresent
           resources:
             requests:
