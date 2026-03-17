@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: backstage-backend-sa
-  namespace: backstage
-  annotations:
-    # Client ID of your Azure Managed Identity
-    azure.workload.identity/client-id: "94421c6e-0582-49c1-b79a-ffbdaf2c40ca"

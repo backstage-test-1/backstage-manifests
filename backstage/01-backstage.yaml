@@ -12,9 +12,7 @@ spec:
     metadata:
       labels:
         app: backstage-backend
-        azure.workload.identity/use: "true"
     spec:
-      serviceAccountName: backstage-backend-sa
       containers:
         - name: backstage-backend
           image: ghcr.io/backstage-test-1/backstage-backend:0d32075c269481e3bf7c24ff6ff6e7588128ae28
@@ -36,6 +34,21 @@ spec:
               value: postgres
             - name: POSTGRES_PORT
               value: "5432"
+            - name: AZURE_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: backstage-secrets
+                  key: AZURE_TENANT_ID
+            - name: AZURE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: backstage-secrets
+                  key: AZURE_CLIENT_ID
+            - name: AZURE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backstage-secrets
+                  key: AZURE_CLIENT_SECRET
           envFrom:
             - secretRef:
                 name: postgres-secrets
