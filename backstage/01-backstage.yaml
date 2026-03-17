@@ -12,7 +12,9 @@ spec:
     metadata:
       labels:
         app: backstage-backend
+        azure.workload.identity/use: "true"
     spec:
+      serviceAccountName: backstage-backend-sa
       containers:
         - name: backstage-backend
           image: ghcr.io/backstage-test-1/backstage-backend:955b132f3b847972d73ac775d12bf09b3b3378f8

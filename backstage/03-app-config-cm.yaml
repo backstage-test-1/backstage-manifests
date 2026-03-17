@@ -47,11 +47,15 @@ data:
       #     changeOrigin: true
 
     techdocs:
-      builder: 'local'
+      builder: 'external'
       generator:
         runIn: 'local'
       publisher:
-        type: 'local'
+        type: 'azureBlobStorage'
+        azureBlobStorage:
+          containerName: 'techdocs-container'
+          credentials:
+            accountName: 'backstagetechdocs01'
 
     auth:
       environment: development
