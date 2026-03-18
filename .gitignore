@@ -1,5 +1,3 @@
 # Secrets
-*-secrets.yaml
-*-secret.yaml
-00-backstage-secrets.yaml
-01-postgres-secret.yaml
+secret-*.yaml
+**/secret-*.yaml

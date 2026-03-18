@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace-backstage.yaml
+  - configmap-app-config.yaml
+  - deployment-backend.yaml
+  - service-frontend.yaml
+  - deployment-frontend.yaml
+  - service-backend.yaml
+  - ingress-backstage.yaml
+  - database/pvc-postgres.yaml
+  - database/deployment-postgres.yaml
+  - database/service-postgres.yaml
+  - notifications/configmap-argocd-notifications.yaml

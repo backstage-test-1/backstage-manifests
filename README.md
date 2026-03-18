@@ -1,6 +1,6 @@
 # Backstage Kubernetes Manifests
 
-Backstage 애플리케이션의 Kubernetes 배포 매니페스트 레포지토리입니다.
+Backstage 플랫폼과 관련 인프라의 GitOps 매니페스트 레포지토리입니다.
 
 ## Architecture
 
@@ -8,28 +8,24 @@ ArgoCD가 이 레포지토리를 감시하여 Kubernetes 클러스터에 자동 
 
 ## Repository Structure
 
-```
-backstage/
-├── namespace.yaml              # backstage 네임스페이스
-├── 00-backstage-secrets.yaml   # Backstage 시크릿 (Git에 미포함)
-├── 01-backstage.yaml           # Backstage Deployment
-├── 02-backstage-service.yaml   # Backstage Service
-├── 04-config.yaml              # Backstage ConfigMap
-└── database/
-    ├── 01-postgres-secret.yaml  # PostgreSQL 시크릿 (Git에 미포함)
-    ├── 02-postgres-storage.yaml # PV/PVC
-    ├── 03-postgres.yaml         # PostgreSQL Deployment
-    └── 04-postgres-service.yaml # PostgreSQL Service
-
-argocd/
-└── backstage-application.yaml  # ArgoCD Application CR
-
-metallb/
-├── 01-ipaddresspool.yaml       # MetalLB IP pool for ingress LB
-└── 02-l2advertisement.yaml     # L2 advertisement for the pool
-
-ingress-nginx/
-└── 01-ingress-nginx-controller-service.yaml  # ingress-nginx Service -> LoadBalancer
+```text
+k8s/
+├── bootstrap/
+│   └── argocd/
+│       ├── apps/         # ArgoCD Application manifests
+│       ├── appsets/      # ArgoCD ApplicationSet manifests
+│       ├── ingress/      # ArgoCD access manifests
+│       └── kustomization.yaml
+├── platform/
+│   ├── backstage/
+│   │   ├── base/         # Backstage workloads, services, config, postgres
+│   │   └── overlays/prod/
+│   ├── devlake/base/     # Namespace and supporting resources
+│   └── monitoring/base/  # Namespace and supporting resources
+├── infra/
+│   ├── ingress-nginx/base/
+│   └── metallb/base/
+└── kustomization.yaml
 ```
 
 ## Related Repositories
@@ -39,14 +35,15 @@ ingress-nginx/
 ## GitOps Workflow
 
 1. backstage-app의 CI가 새 이미지를 빌드하고 GHCR에 푸시
-2. CI가 이 레포의 `01-backstage.yaml`의 이미지 태그를 자동 업데이트
+2. CI가 이 레포의 `platform/backstage/base/deployment-backend.yaml`과 `platform/backstage/base/deployment-frontend.yaml`의 이미지 태그를 자동 업데이트
 3. ArgoCD가 변경사항을 감지하고 클러스터에 자동 배포
 
 ## Security Notes
 
 ⚠️ **시크릿 파일은 Git에 포함되지 않습니다:**
-- `00-backstage-secrets.yaml`
-- `database/01-postgres-secret.yaml`
+- `platform/backstage/base/secret-backstage.yaml`
+- `platform/backstage/base/database/secret-postgres.yaml`
+- `platform/backstage/base/notifications/secret-argocd-notifications.yaml`
 
 이 파일들은 클러스터에 수동으로 `kubectl apply` 해야 합니다.
 
@@ -54,10 +51,13 @@ ingress-nginx/
 
 ```bash
 # Backstage secrets
-kubectl apply -f backstage/00-backstage-secrets.yaml
+kubectl apply -f platform/backstage/base/secret-backstage.yaml
 
 # PostgreSQL secrets  
-kubectl apply -f backstage/database/01-postgres-secret.yaml
+kubectl apply -f platform/backstage/base/database/secret-postgres.yaml
+
+# ArgoCD notifications secrets
+kubectl apply -f platform/backstage/base/notifications/secret-argocd-notifications.yaml
 ```
 
 ## MetalLB and ingress-nginx LoadBalancer
@@ -71,9 +71,8 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/confi
 Then apply the repository-managed MetalLB and ingress-nginx configuration:
 
 ```bash
-kubectl apply -f k8s/metallb/01-ipaddresspool.yaml
-kubectl apply -f k8s/metallb/02-l2advertisement.yaml
-kubectl apply -f k8s/ingress-nginx/01-ingress-nginx-controller-service.yaml
+kubectl apply -k infra/metallb/base
+kubectl apply -k infra/ingress-nginx/base
 ```
 
 Before applying the IPAddressPool, replace the example address range with IPs that are actually reserved and free on the node subnet.
@@ -84,6 +83,6 @@ Before applying the IPAddressPool, replace the example address range with IPs th
 # Add repository to ArgoCD
 argocd repo add https://github.com/backstage-test-1/backstage-manifests
 
-# Deploy application
-kubectl apply -f argocd/backstage-application.yaml
+# Bootstrap ArgoCD-managed applications
+kubectl apply -k bootstrap/argocd
 ```
