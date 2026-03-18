@@ -1,0 +1,79 @@
+name: Manifest CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "manifest-ci-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  yaml-lint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install yamllint
+        run: |
+          set -euo pipefail
+          pip install yamllint==1.37.1
+
+      - name: Lint tracked YAML files
+        run: |
+          set -euo pipefail
+          mapfile -t yaml_files < <(git ls-files '*.yaml' '*.yml')
+
+          if [ "${#yaml_files[@]}" -eq 0 ]; then
+            echo "No YAML files found"
+            exit 0
+          fi
+
+          yamllint -c .yamllint.yaml "${yaml_files[@]}"
+
+  manifest-validate:
+    name: Manifest Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.30.0"
+
+      - name: Install kubeconform
+        env:
+          KUBECONFORM_VERSION: "0.6.7"
+        run: |
+          set -euo pipefail
+          curl -sSLo /tmp/kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          tar -xzf /tmp/kubeconform.tar.gz -C /tmp kubeconform
+          sudo install /tmp/kubeconform /usr/local/bin/kubeconform
+
+      - name: Render manifests
+        run: kubectl kustomize . > rendered.yaml
+
+      - name: Validate rendered manifests
+        run: kubeconform -summary -strict -ignore-missing-schemas rendered.yaml
