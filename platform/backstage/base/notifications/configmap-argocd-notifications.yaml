@@ -14,7 +14,7 @@ data:
       send:
       - app-sync-succeeded
       when: app.status.operationState.phase in ['Succeeded']
-  
+
   ##############
   # 메시지 템플릿
   ##############
@@ -42,7 +42,7 @@ data:
             }
           ]
         }]
-  
+
   # Sync 실패
   trigger.on-sync-failed: |
     - description: Application syncing has failed
@@ -88,9 +88,9 @@ data:
         }]
 
   ##################
-  # DevLake 
+  # DevLake
   ##################
-      
+
   # DevLake Webhook 서비스 등록
   service.webhook.devlake: |
     url: "http://devlake-ui.devlake.svc.cluster.local:4000/api/rest/plugins/webhook/connections/1/deployments"
