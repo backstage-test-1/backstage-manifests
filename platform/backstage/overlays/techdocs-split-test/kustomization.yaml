@@ -22,6 +22,14 @@ patches:
     target:
       kind: Deployment
       name: postgres
+  - path: patch-deployment-backstage-backend.yaml
+    target:
+      kind: Deployment
+      name: backstage-backend
+  - path: patch-deployment-backstage-frontend.yaml
+    target:
+      kind: Deployment
+      name: backstage-frontend
 images:
   - name: ghcr.io/backstage-test-1/backstage-backend
     newTag: techdocs-remote-worker-test

@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage-frontend
+spec:
+  template:
+    spec:
+      containers:
+        - name: backstage-frontend
+          imagePullPolicy: Always

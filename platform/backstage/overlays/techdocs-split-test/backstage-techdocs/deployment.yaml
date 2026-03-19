@@ -15,7 +15,7 @@ spec:
       containers:
         - name: backstage-techdocs
           image: ghcr.io/backstage-test-1/backstage-techdocs:techdocs-remote-worker-test
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           resources:
             requests:
               cpu: "250m"
