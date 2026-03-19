@@ -1,0 +1,136 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-app-config
+data:
+  app-config.yaml: |
+    app:
+      title: Scaffolded Backstage App
+      baseUrl: http://backstage-techdocs-test.sth.com
+
+    organization:
+      name: My Company
+
+    backend:
+      baseUrl: http://backstage-techdocs-test.sth.com
+      listen:
+        port: 7007
+      csp:
+        connect-src: ["'self'", 'http:', 'https:']
+        upgrade-insecure-requests: false
+      cors:
+        origin: http://backstage-techdocs-test.sth.com
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+      database:
+        client: pg
+        connection:
+          host: ${POSTGRES_HOST}
+          port: ${POSTGRES_PORT}
+          user: ${POSTGRES_USER}
+          password: ${POSTGRES_PASSWORD}
+
+    integrations:
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
+
+    proxy:
+
+    techdocs:
+      builder: 'local'
+      generator:
+        runIn: 'local'
+        remote:
+          enabled: true
+          serviceUrl: 'http://backstage-techdocs:7008'
+          timeoutMs: 300000
+          tokenEnvName: 'TECHDOCS_WORKER_TOKEN'
+      publisher:
+        type: 'azureBlobStorage'
+        azureBlobStorage:
+          containerName: 'techdocs-container-test'
+          credentials:
+            accountName: 'backstagetechdocs01'
+
+    auth:
+      environment: development
+      providers:
+        guest:
+          dangerouslyAllowOutsideDevelopment: true
+          userEntityRef: user:default/guest
+        github:
+          development:
+            clientId: ${AUTH_GITHUB_CLIENT_ID}
+            clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+            signIn:
+              resolvers:
+                - resolver: usernameMatchingUserEntityName
+          production:
+            clientId: ${AUTH_GITHUB_CLIENT_ID}
+            clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+            signIn:
+              resolvers:
+                - resolver: usernameMatchingUserEntityName
+
+    scaffolder:
+
+    catalog:
+      import:
+        entityFilename: catalog-info.yaml
+        pullRequestBranchName: backstage-integration
+      rules:
+        - allow: [Component, System, API, Resource, Location]
+      locations:
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/examples/entities.yaml
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/examples/template/template.yaml
+          rules:
+            - allow: [Template]
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/templates/node-api/template.yaml
+          rules:
+            - allow: [Template]
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/templates/system/template.yaml
+          rules:
+            - allow: [Template]
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/templates/vue-frontend/template.yaml
+          rules:
+            - allow: [Template]
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/catalog/systems/
+          rules:
+            - allow: [System]
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/examples/org.yaml
+          rules:
+            - allow: [User, Group]
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-app/blob/main/catalog-info.yaml
+
+        - type: url
+          target: https://github.com/backstage-test-1/backstage-manifests/blob/main/catalog-info.yaml
+
+    kubernetes:
+
+    permission:
+      enabled: true
+
+    argocd:
+      appLocatorMethods:
+        - type: 'config'
+          instances:
+            - name: argoInstance1
+              url: ${ARGOCD_URL}
+              token: ${ARGOCD_AUTH_TOKEN}
+              skipTLSVerify: true

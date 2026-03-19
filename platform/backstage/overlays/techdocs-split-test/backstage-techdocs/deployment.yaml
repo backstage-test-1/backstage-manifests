@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage-techdocs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backstage-techdocs
+  template:
+    metadata:
+      labels:
+        app: backstage-techdocs
+    spec:
+      containers:
+        - name: backstage-techdocs
+          image: ghcr.io/backstage-test-1/backstage-techdocs:techdocs-remote-worker-test
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          ports:
+            - name: http
+              containerPort: 7008
+          env:
+            - name: PORT
+              value: "7008"
+          envFrom:
+            - secretRef:
+                name: backstage-secrets
+          volumeMounts:
+            - name: app-config
+              mountPath: /app/app-config.yaml
+              subPath: app-config.yaml
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+      volumes:
+        - name: app-config
+          configMap:
+            name: backstage-app-config

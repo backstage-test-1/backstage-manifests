@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage-techdocs
+spec:
+  type: ClusterIP
+  selector:
+    app: backstage-techdocs
+  ports:
+    - name: http
+      port: 7008
+      targetPort: http
