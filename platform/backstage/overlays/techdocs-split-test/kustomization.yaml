@@ -4,8 +4,6 @@ namespace: backstage-techdocs-test
 resources:
   - ../../base
   - namespace.yaml
-  - secret-backstage.yaml
-  - database/secret-postgres.yaml
   - backstage-techdocs/deployment.yaml
   - backstage-techdocs/service.yaml
 patches:
