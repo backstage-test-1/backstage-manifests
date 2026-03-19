@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: backstage-techdocs-test
 resources:
   - ../../base
-  - namespace.yaml
   - backstage-techdocs/deployment.yaml
   - backstage-techdocs/service.yaml
 patches:
