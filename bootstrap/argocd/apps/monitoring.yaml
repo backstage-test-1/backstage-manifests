@@ -12,10 +12,89 @@ spec:
     helm:
       values: |
         loki:
+          image:
+            # Phase B: upgrade Loki first so TSDB storage is introduced on a supported runtime.
+            tag: 2.9.3
+          extraArgs:
+            config.expand-env: "true"
+          extraEnvFrom:
+            - secretRef:
+                # Manually apply this secret in the monitoring namespace.
+                name: loki-minio-credentials
           persistence:
             enabled: true
             storageClassName: "nfs-client"
             size: 10Gi
+          config:
+            auth_enabled: false
+            memberlist:
+              join_members:
+                - '{{ include "loki.fullname" . }}-memberlist'
+            ingester:
+              chunk_idle_period: 3m
+              chunk_block_size: 262144
+              chunk_retain_period: 1m
+              max_transfer_retries: 0
+              wal:
+                dir: /data/loki/wal
+              lifecycler:
+                ring:
+                  replication_factor: 1
+            limits_config:
+              enforce_metric_name: false
+              reject_old_samples: true
+              reject_old_samples_max_age: 168h
+              max_entries_limit_per_query: 5000
+            schema_config:
+              configs:
+                - from: "2020-10-24"
+                  store: boltdb-shipper
+                  object_store: filesystem
+                  schema: v11
+                  index:
+                    prefix: index_
+                    period: 24h
+                - from: "2099-01-01"
+                  # Phase C: replace this sentinel with the real cutover date (00:00:00 UTC)
+                  # only after the Loki 2.9.3 upgrade has been verified in-cluster.
+                  store: tsdb
+                  object_store: s3
+                  schema: v13
+                  index:
+                    prefix: index_
+                    period: 24h
+            server:
+              http_listen_port: 3100
+              grpc_listen_port: 9095
+            storage_config:
+              boltdb_shipper:
+                active_index_directory: /data/loki/boltdb-shipper-active
+                cache_location: /data/loki/boltdb-shipper-cache
+                cache_ttl: 24h
+                shared_store: filesystem
+              filesystem:
+                directory: /data/loki/chunks
+              tsdb_shipper:
+                active_index_directory: /data/loki/tsdb-active
+                cache_location: /data/loki/tsdb-cache
+              aws:
+                bucketnames: ${MINIO_LOKI_BUCKET}
+                endpoint: ${MINIO_ENDPOINT}
+                access_key_id: ${MINIO_ACCESS_KEY_ID}
+                secret_access_key: ${MINIO_SECRET_ACCESS_KEY}
+                insecure: true
+                s3forcepathstyle: true
+              # Keep the compactor local working directory on the existing PVC while
+              # new TSDB indexes/chunks are shipped to MinIO after the cutover date.
+            chunk_store_config:
+              max_look_back_period: 0s
+            table_manager:
+              retention_deletes_enabled: false
+              retention_period: 0s
+            compactor:
+              shared_store: filesystem
+              working_directory: /data/loki/compactor
+              compaction_interval: 5m
         grafana:
           enabled: true
           admin:
