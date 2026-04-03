@@ -54,9 +54,9 @@ spec:
                   index:
                     prefix: index_
                     period: 24h
-                - from: "2099-01-01"
-                  # Phase C: replace this sentinel with the real cutover date (00:00:00 UTC)
-                  # only after the Loki 2.9.3 upgrade has been verified in-cluster.
+                - from: "2026-04-05"
+                  # Phase C cutover date: 2026-04-05 00:00:00 UTC
+                  # New writes switch to MinIO-backed TSDB from this UTC boundary onward.
                   store: tsdb
                   object_store: s3
                   schema: v13
@@ -92,7 +92,7 @@ spec:
               retention_deletes_enabled: false
               retention_period: 0s
             compactor:
-              shared_store: filesystem
+              shared_store: s3
               working_directory: /data/loki/compactor
               compaction_interval: 5m
         grafana:
