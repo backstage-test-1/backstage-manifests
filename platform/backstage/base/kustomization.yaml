@@ -11,4 +11,6 @@ resources:
   - database/pvc-postgres.yaml
   - database/deployment-postgres.yaml
   - database/service-postgres.yaml
+  - database/configmap-postgres-backup-script.yaml
+  - database/cronjob-postgres-backup.yaml
   - notifications/configmap-argocd-notifications.yaml

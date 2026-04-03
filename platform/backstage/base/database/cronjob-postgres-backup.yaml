@@ -1,0 +1,81 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: backstage
+spec:
+  schedule: "0 2 * * *"
+  timeZone: "Asia/Seoul"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+            - name: workdir
+              emptyDir: {}
+            - name: backup-scripts
+              configMap:
+                name: postgres-backup-scripts
+                defaultMode: 0555
+          initContainers:
+            - name: dump-postgres
+              image: postgres:13.2-alpine
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - /scripts/dump-backups.sh
+              envFrom:
+                - secretRef:
+                    name: postgres-secrets
+              env:
+                - name: POSTGRES_HOST
+                  value: postgres
+                - name: POSTGRES_PORT
+                  value: "5432"
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "256Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "512Mi"
+              volumeMounts:
+                - name: workdir
+                  mountPath: /workdir
+                - name: backup-scripts
+                  mountPath: /scripts
+          containers:
+            - name: upload-postgres-backup
+              image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - /scripts/upload-backups.sh
+              envFrom:
+                - secretRef:
+                    # Manually apply this secret in the backstage namespace.
+                    name: postgres-backup-minio-credentials
+              env:
+                - name: BACKUP_RETENTION_DAYS
+                  value: "7"
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                limits:
+                  cpu: "300m"
+                  memory: "256Mi"
+              volumeMounts:
+                - name: workdir
+                  mountPath: /workdir
+                - name: backup-scripts
+                  mountPath: /scripts

@@ -44,6 +44,8 @@ k8s/
 - `platform/backstage/base/secret-backstage.yaml`
 - `platform/backstage/base/database/secret-postgres.yaml`
 - `platform/backstage/base/notifications/secret-argocd-notifications.yaml`
+- `monitoring` namespace `loki-minio-credentials` (manual secret, not committed)
+- `backstage` namespace `postgres-backup-minio-credentials` (manual secret, not committed)
 
 이 파일들은 클러스터에 수동으로 `kubectl apply` 해야 합니다.
 
@@ -58,7 +60,36 @@ kubectl apply -f platform/backstage/base/database/secret-postgres.yaml
 
 # ArgoCD notifications secrets
 kubectl apply -f platform/backstage/base/notifications/secret-argocd-notifications.yaml
+
+# MinIO credentials for Loki (create a local manifest first; do not commit credentials)
+kubectl apply -f /path/to/loki-minio-credentials.yaml
+
+# MinIO credentials for PostgreSQL backups (create a local manifest first; do not commit credentials)
+kubectl apply -f /path/to/postgres-backup-minio-credentials.yaml
 ```
+
+## MinIO rollout manual secret shape
+
+Create the following secrets outside Git before syncing the rollout:
+
+### `monitoring/loki-minio-credentials`
+- `MINIO_ENDPOINT` as `host:port`
+- `MINIO_ACCESS_KEY_ID`
+- `MINIO_SECRET_ACCESS_KEY`
+- `MINIO_LOKI_BUCKET`
+
+### `backstage/postgres-backup-minio-credentials`
+- `MINIO_ENDPOINT` as `host:port`
+- `MINIO_ACCESS_KEY_ID`
+- `MINIO_SECRET_ACCESS_KEY`
+- `MINIO_BACKUP_BUCKET`
+- optional: `MINIO_BACKUP_PREFIX` (defaults to `backstage-postgres`)
+
+Use the **same `MINIO_ACCESS_KEY_ID` / `MINIO_SECRET_ACCESS_KEY` pair** in both secrets. Only the bucket or prefix should differ between Loki and PostgreSQL backups.
+
+The Loki migration manifest keeps the new TSDB schema disabled behind a `2099-01-01` sentinel cutover date. After the Loki 2.9.3 upgrade is verified, replace that date with the real **future UTC cutover date** and switch `compactor.shared_store` from `filesystem` to `s3` before syncing Phase C.
+
+Operational note: a live check on 2026-04-03 showed Loki `/data` at roughly `5.6G / 45G` used on the backing NFS export, but `df -h /data` should still be part of the pre-cutover checklist because TSDB cache/active index files remain on the same mounted path.
 
 ## MetalLB and ingress-nginx LoadBalancer
 
