@@ -87,9 +87,9 @@ Create the following secrets outside Git before syncing the rollout:
 
 Use the **same `MINIO_ACCESS_KEY_ID` / `MINIO_SECRET_ACCESS_KEY` pair** in both secrets. Only the bucket or prefix should differ between Loki and PostgreSQL backups.
 
-The Loki migration manifest keeps the new TSDB schema disabled behind a `2099-01-01` sentinel cutover date. After the Loki 2.9.3 upgrade is verified, replace that date with the real **future UTC cutover date** and switch `compactor.shared_store` from `filesystem` to `s3` before syncing Phase C.
+The Phase C Loki cutover in this repository is scheduled for **2026-04-05 00:00:00 UTC**. From that boundary onward, new writes use MinIO-backed TSDB and `compactor.shared_store: s3`.
 
-Operational note: a live check on 2026-04-03 showed Loki `/data` at roughly `5.6G / 45G` used on the backing NFS export, but `df -h /data` should still be part of the pre-cutover checklist because TSDB cache/active index files remain on the same mounted path.
+Operational note: a live check on 2026-04-03 showed Loki `/data` at roughly `5.6G / 45G` used on the backing NFS export, but `df -h /data` should still be part of the post-cutover checklist because TSDB cache/active index files remain on the same mounted path.
 
 ## MetalLB and ingress-nginx LoadBalancer
 
